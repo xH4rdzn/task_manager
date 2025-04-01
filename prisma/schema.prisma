@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  member
+}
+
+enum TaskStatus {
+  pending
+  in_progress
+  completed
+}
+
+enum Priority {
+  high
+  medium
+  low
+}
+
+model Users {
+  id        String      @id @default(uuid())
+  name      String
+  email     String      @unique
+  password  String
+  role      UserRole    @default(member)
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime?   @updatedAt @map("updated_at")
+  teamId    String?     @map("team_id")
+  team      Teams?      @relation(fields: [teamId], references: [id])
+  TasksLogs TasksLogs[]
+  Tasks     Tasks[]
+
+  @@map("users")
+}
+
+model Teams {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  users Users[]
+  Tasks Tasks[]
+
+  @@map("teams")
+}
+
+model Tasks {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(pending)
+  priority    Priority   @default(medium)
+  assignedTo  String?    @map("assigned_to")
+  teamId      String?    @map("team_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime?  @updatedAt @map("updated_at")
+
+  team      Teams?      @relation(fields: [teamId], references: [id])
+  assigned  Users?      @relation(fields: [assignedTo], references: [id])
+  TasksLogs TasksLogs[]
+
+  @@map("tasks")
+}
+
+model TasksLogs {
+  id        String     @id @default(uuid())
+  changedBy String     @map("changed_by")
+  taskId    String     @map("task_id")
+  oldStatus TaskStatus @map("old_status")
+  newStatus TaskStatus @map("new_status")
+  changedAt DateTime?  @updatedAt @map("changed_at")
+
+  changed Users @relation(fields: [changedBy], references: [id])
+  task    Tasks @relation(fields: [taskId], references: [id])
+
+  @@map("tasks_logs")
+}
