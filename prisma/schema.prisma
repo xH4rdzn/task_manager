@@ -34,8 +34,8 @@ model Users {
   updatedAt DateTime?   @updatedAt @map("updated_at")
   teamId    String?     @map("team_id")
   team      Teams?      @relation(fields: [teamId], references: [id])
-  TasksLogs TasksLogs[]
-  Tasks     Tasks[]
+  tasksLogs TasksLogs[]
+  tasks     Tasks[]
 
   @@map("users")
 }
@@ -48,7 +48,7 @@ model Teams {
   updatedAt   DateTime? @updatedAt @map("updated_at")
 
   users Users[]
-  Tasks Tasks[]
+  tasks Tasks[]
 
   @@map("teams")
 }
@@ -66,7 +66,7 @@ model Tasks {
 
   team      Teams?      @relation(fields: [teamId], references: [id])
   assigned  Users?      @relation(fields: [assignedTo], references: [id])
-  TasksLogs TasksLogs[]
+  tasksLogs TasksLogs[]
 
   @@map("tasks")
 }

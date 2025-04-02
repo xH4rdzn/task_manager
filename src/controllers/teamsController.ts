@@ -25,7 +25,23 @@ class TeamsController {
 
   // Listar os times
   async index(request: Request, response: Response) {
-    const team = await prisma.teams.findMany()
+    const team = await prisma.teams.findMany({
+      include: {
+        users: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        tasks: {
+          select: {
+            title: true,
+            priority: true,
+            status: true,
+          },
+        },
+      },
+    })
     return response.json(team)
   }
 
