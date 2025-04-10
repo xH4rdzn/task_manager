@@ -10,3 +10,11 @@ taskLogsRoutes.post(
   verifyUserAuthorization(['member']),
   taskLogsController.create
 )
+
+taskLogsRoutes.get(
+  '/',
+  verifyUserAuthorization(['admin']),
+  taskLogsController.index
+)
+
+export { taskLogsRoutes }

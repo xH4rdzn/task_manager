@@ -11,14 +11,16 @@ class TasksController {
         .string()
         .min(10, 'O titulo da tarefa deve ter no mínimo 10 caracteres'),
       description: z.string().optional(),
+      priority: z.enum(['low', 'medium', 'high']).optional(),
     })
 
-    const { title, description } = bodySchema.parse(request.body)
+    const { title, description, priority } = bodySchema.parse(request.body)
 
     const task = await prisma.tasks.create({
       data: {
         title,
         description,
+        priority,
       },
     })
     return response.status(201).json({ task })
