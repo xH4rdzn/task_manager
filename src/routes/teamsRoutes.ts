@@ -49,4 +49,11 @@ teamsRoutes.patch(
   teamModifierController.assignTasks
 )
 
+// Remover um membro do time
+teamsRoutes.patch(
+  '/:teamId/remove',
+  verifyUserAuthorization(['admin']),
+  teamModifierController.removeMemberTeam
+)
+
 export { teamsRoutes }

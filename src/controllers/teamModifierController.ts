@@ -96,6 +96,65 @@ class TeamModifierController {
 
     return response.json(assignTask)
   }
+
+  async removeMemberTeam(request: Request, response: Response) {
+    const paramsSchema = z.object({
+      teamId: z.string().uuid(),
+    })
+
+    const bodySchema = z.object({
+      userId: z.string().uuid(),
+    })
+
+    const { userId } = bodySchema.parse(request.body)
+    const { teamId } = paramsSchema.parse(request.params)
+
+    const user = await prisma.users.findUnique({
+      where: {
+        id: userId,
+      },
+    })
+
+    const team = await prisma.teams.findUnique({
+      where: {
+        id: teamId,
+      },
+    })
+
+    if (!team) {
+      throw new AppError('Time não encontrado', 404)
+    }
+
+    if (!user) {
+      throw new AppError('Esse usuário não existe')
+    }
+
+    if (user.teamId !== team.id) {
+      throw new AppError('Esse usuário não pertence a esse time')
+    }
+
+    await prisma.users.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        team: {
+          disconnect: true,
+        },
+      },
+    })
+
+    await prisma.tasks.updateMany({
+      where: {
+        assignedTo: user.id,
+      },
+      data: {
+        assignedTo: null,
+      },
+    })
+
+    return response.json()
+  }
 }
 
 export { TeamModifierController }
